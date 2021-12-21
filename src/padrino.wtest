@@ -1,0 +1,63 @@
+import padrino.*
+
+describe "tests mafiosos" {
+	
+	const mafiosoComun = new Mafioso(armas = [new Revolver()])
+	
+	const mafioso2armas = new Mafioso(armas = [new Revolver(), new Revolver()]) 
+	const mafioso1arma = new Mafioso(armas = [new Revolver()]) 
+
+	const tattaglia = new Familia(miembros = [mafioso2armas,mafioso1arma])
+	
+	test "cuando se muere alguien queda muerto"{
+		mafiosoComun.morir() 
+		assert.that(mafiosoComun.estaMuerto())
+	}
+	
+	test "cuando se hiere a alguien no queda muerto"{
+		mafiosoComun.herir() 
+		assert.notThat(mafiosoComun.estaMuerto())
+	}
+	
+	test "cuando se hiere a alguien cuatro veces queda muerto"{
+		mafiosoComun.herir() 
+		mafiosoComun.herir() 
+		mafiosoComun.herir() 
+		mafiosoComun.herir() 
+		assert.that(mafiosoComun.estaMuerto())
+	}
+
+	test "el mafioso mas peligroso con todos vivos"{
+		assert.equals(mafioso2armas, tattaglia.masPeligroso())
+	}
+	
+	test "el mafioso mas peligroso con algunos muertos"{
+		mafioso2armas.morir()
+		assert.equals(mafioso1arma, tattaglia.masPeligroso())
+	}
+	
+	
+	test "ataque sorpresa de soldado con revolver cargado" {
+		mafiosoComun.atacar(tattaglia)
+		assert.that(mafioso2armas.estaMuerto()) 
+		// el mafioso comun tiene un revolver y lo uso contra mafioso 2 armas, que es el mas armado, y lo mato
+		
+	}	
+
+	test "ataque sorpresa de soldado con un revolver sin carga" {
+		const victimaOcasional = new Mafioso()
+		6.times{i=> mafiosoComun.trabajar(victimaOcasional) }
+		// un mafioso vacia el cargador en otra victima
+		mafiosoComun.atacar(tattaglia)
+		assert.notThat(mafioso2armas.estaMuerto()) 
+		// el mafioso tiene un revolver sin balsas y cuando lo quiere usar no mata a su victima 
+	}	
+	
+	test "ataque sorpresa de un don, no mata a nadie" {
+		mafiosoComun.rango(don)
+		mafiosoComun.atacar(tattaglia)
+		assert.notThat(mafioso2armas.estaMuerto()) 
+	}	
+
+				
+}
